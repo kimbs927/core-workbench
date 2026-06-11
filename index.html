@@ -644,6 +644,7 @@ body.mode-bld .topbar{position:relative;z-index:20}
 .bld-go:disabled{opacity:.55;cursor:default}
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <!-- ===== LOCK SCREEN ===== -->
@@ -838,10 +839,46 @@ const DATA = {
 
 const STEPS=['웹에서 최신 정보 수집','관련 레퍼런스 이미지 수집','맥락 분석·기획 방향 도출','브리프 조립'];
 
-function quick(t){document.getElementById('q').value=t;runSearch();}
+const SUPABASE_URL =
+'https://gubhsfqkogcdkrkqxfvn.supabase.co'
 
-function runSearch(){
+const SUPABASE_KEY =
+'sb_publishable_quhbYF6DSCocSUnp2FEXyQ_zWLB-JtG'
+
+const sb =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+)
+
+function quick(t){
+  document.getElementById('q').value=t;
+  runSearch();
+}
+async function saveProject(title){
+
+  const { error } = await sb
+  .from('projects')
+  .insert([
+    {
+      title: title,
+      description: '',
+      status: '진행중'
+    }
+  ]);
+  if(error){
+    console.error(error);
+    alert('저장 실패');
+    return;
+  }
+
+  console.log('저장 완료');
+}
+async function runSearch(){
   const q=document.getElementById('q').value.trim();
+ if(q){
+  await saveProject(q);
+}
   const res=document.getElementById('result');
   const load=document.getElementById('loading');
   const go=document.getElementById('go');
